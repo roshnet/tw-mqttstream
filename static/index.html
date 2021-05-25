@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title>Server Sent Events in Express.js!</title>
+    <style>
+      #root {
+        margin: 10%;
+        font-size: larger;
+      }
+    </style>
+  </head>
+  <body>
+    <h4 id="connection-state">Offline</h4>
+    <div id="root"></div>
+  </body>
+</html>
+
+<script>
+  window.onload = function () {
+    const source = new EventSource('/stream')
+
+    source.addEventListener('open', () => {
+      console.log('[SSE_CONN] Connected to server for SSE stream... OK')
+      document.getElementById('connection-state').innerText = 'Online'
+    })
+
+    source.addEventListener('message', (event) => {
+      console.log('[SSE_RECV] Server pushing data:', event.data)
+      document.getElementById('root').innerHTML += '<br>' + event.data
+    })
+  }
+</script>
