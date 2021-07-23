@@ -42,8 +42,21 @@ app.get('/stream', (req, resp) => {
   resp.write('retry: 5000\n\n')
 
   client.on('message', (topic, message) => {
-    console.log('[INFO] Received data')
-    let payload = message.toString()
+    // TODO: Handle errors if sensor doesn't send expected message
+    let response = JSON.parse(message.toString())
+    const deviceId = response.deviceId
+    const sensors = response.data
+
+    let payload = null
+
+    for (let idx = 0; idx < sensors.length; idx++) {
+      let sensor = sensors[idx]
+      if (sensor.type == 'temp') {
+        sensor.sensorId = `${deviceId}-${sensor.sensorId}`
+        payload = JSON.stringify(sensor)
+        break
+      }
+    }
     resp.write(`data: ${payload} \n\n`)
   })
 
