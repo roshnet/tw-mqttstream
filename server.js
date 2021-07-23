@@ -2,7 +2,10 @@ const express = require('express')
 const fs = require('fs')
 const mqtt = require('mqtt')
 const dotenv = require('dotenv').config()
+var cors = require('cors')
+
 const app = express()
+app.use(cors())
 
 const TOPIC = 'home/master/temp_humi'
 
