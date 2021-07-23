@@ -7,6 +7,7 @@ var cors = require('cors')
 const app = express()
 app.use(cors())
 
+const PORT = Number(process.env.PORT) || 5000
 const TOPIC = 'home/master/temp_humi'
 
 app.use(express.static('./static/'))
@@ -55,6 +56,6 @@ app.get('/stream', (req, resp) => {
   })
 })
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000.\nCall /stream for SSE feed.\n\n')
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}.\nCall /stream for SSE feed.\n\n`)
 })
