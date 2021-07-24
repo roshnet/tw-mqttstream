@@ -3,6 +3,8 @@ const fs = require('fs')
 const mqtt = require('mqtt')
 const dotenv = require('dotenv').config()
 var cors = require('cors')
+const sqlite3 = require('sqlite3').verbose()
+const XLSX = require('xlsx')
 
 const app = express()
 app.use(cors())
@@ -67,6 +69,35 @@ app.get('/stream', (req, resp) => {
       console.log('Unsubscribed from broker!')
     })
   })
+})
+
+app.get('/download', (req, resp) => {
+  let db = new sqlite3.Database('sensor.db', (err) => {
+    if (err) {
+      resp.sendStatus(400)
+      return
+    }
+  })
+
+  const sql = 'SELECT * FROM readings;' // Add WHERE based on sensorId later
+
+  db.all(sql, [], (err, rows) => {
+    if (err) resp.send(err.message)
+    const worksheet = XLSX.utils.json_to_sheet(rows)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Reports by Teknowish')
+    const FILENAME = `TW-Report.xlsx`
+
+    // Write temporary file to disk for downloading
+    XLSX.writeFile(workbook, FILENAME)
+
+    // Send file for download & delete when sent
+    resp.download(FILENAME, (e) => {
+      fs.unlink(FILENAME, (e) => {})
+    })
+  })
+
+  db.close((e) => {})
 })
 
 app.listen(PORT, () => {
